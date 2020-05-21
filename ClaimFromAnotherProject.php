@@ -53,7 +53,7 @@ class ClaimFromAnotherProject extends \ExternalModules\AbstractExternalModule {
 
         $params = [
             "project_id" => $extProject,
-            "filter_logic" => $extLogic,
+            "filterLogic" => $extLogic,
             "return_format" => 'json'
         ];
         $q = json_decode(REDCap::getData($params), true);
