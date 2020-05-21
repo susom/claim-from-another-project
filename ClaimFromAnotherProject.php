@@ -90,16 +90,17 @@ class ClaimFromAnotherProject extends \ExternalModules\AbstractExternalModule {
 
         // Get ext metadata
         global $Proj;
+        $thisProj = !empty($Proj) && $Proj->project_id == $project_id ? $Proj : new \Project($project_id);
         $extProj = new \Project($extProject);
         $claimRecordId = $claimRecord[$extProj->table_pk];
 
 
         foreach ($maps as $map) {
-            $externalField = $map['external-field'];
-            $thisField = $map['this-field'];
-            $thisEvent = $map['this-event'];
-            if(empty($Proj->eventInfo[$thisEvent])) return $this->logExit("Specified event $thisEvent does not exist in this project");
-            if(empty($Proj->metadata[$thisField])) return $this->logExit("Specified field $thisField does not exist in this project");
+            $externalField  = $map['external-field'];
+            $thisField      = $map['this-field'];
+            $thisEvent      = $map['this-event'];
+            if(empty($thisProj->eventInfo[$thisEvent])) return $this->logExit("Specified event $thisEvent does not exist in this project");
+            if(empty($thisProj->metadata[$thisField])) return  $this->logExit("Specified field $thisField does not exist in this project");
             if(empty($extProj->metadata[$externalField])) return $this->logExit("Specified field $externalField does not exist in external project $extProject");
 
             if (!isset($thisRecord[$thisEvent])) $thisRecord[$thisEvent] = [];
