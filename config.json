@@ -1,11 +1,13 @@
 {
-	"name": "ClaimFromAnotherProject",
+	"name": "Claim From Another Project",
 
 	"namespace": "Stanford\\ClaimFromAnotherProject",
 
-	"description": "This basic EM will claim a record from an external project and copy over specified fields (including file fields) to the source project.  This was developed to facilitate obtaining files from an external project on a per-record basis",
+	"description": "This External Module will 'claim' data from another project (or arm in the current project) when a certain event happens in this project.  You can also map fields between the current record and the claimed record.  It has many uses from Randomization Aliases, Claiming codes or gift cards, and more...",
 
 	"documentation": "README.md",
+
+    "framework-version": 5,
 
 	"authors": [
 		{
@@ -16,9 +18,6 @@
 	],
 
 	"permissions": [
-		"redcap_module_system_enable",
-		"redcap_module_project_enable",
-		"redcap_module_save_configuration",
         "redcap_save_record"
 	],
 
@@ -26,8 +25,13 @@
 
 	"links": {
 		"project": [
-
-		],
+            {
+                "name": "Claim From Another Project Instructions",
+                "icon": "fas fa-question-circle",
+                "url": "instructions.php",
+                "show-header-and-footer": true
+            }
+        ],
 		"control-center": [
 
 		]
@@ -39,66 +43,139 @@
 
 	"project-settings": [
         {
-			"key": "claim-logic",
-			"name": "<b>Claim Logic</b><br>This is evaluated in THIS project on save for each record.  When this logic is true, a record will be claimed from the external project.  This logic should include logic to prevent a re-save from claiming another remote record.<br>(e.g. [is_worthy(1)] = '1' AND [map_field_below] = '')",
-			"required": true,
-			"type": "text"
-		},
-        {
-			"key": "external-project",
-			"name": "<b>External Project</b><br>Project that has records to be claimed",
-			"required": true,
-			"type": "project-id"
-		},
-		{
-			"key": "external-logic",
-			"name": "<b>Logic for Available Records</b><br>This logic is evaluated on the EXTERNAL PROJECT to determine which records are available to be claimed<br>(e.g. [claimed_by] = '')",
-			"required": true,
-			"type": "text"
-		},
-		{
-			"key": "external-used-field",
-			"name": "<b>External Allocated Field</b><br>Field in external project to store record id from this project to mark as used<br>(e.g. claimed_by)",
-			"required": true,
-			"type": "text"
-		},
-		{
-			"key": "external-date-field",
-			"name": "<b>External Date Used Field</b> <i>(optional)</i><br>Store timestamp of when record was claimed<br>(e.g. date_claimed) -- must be text or datetime field type",
-			"required": false,
-			"type": "text"
-		},
-        {
             "key": "instance",
-            "name": "<b>Map fields from external project to this project</b><br>When a record is claimed, these fields from the external project will be mapped into this project",
+            "name": "<b>Define 1 or more claim events for your project</b>",
             "required": true,
             "type": "sub_settings",
             "repeatable": true,
             "sub_settings": [
                 {
-                    "key": "external-field",
-                    "name": "<b>Field name in external project</b>",
+                    "key": "claim-logic",
+                    "name": "<b>Attempt Claim Logic</b><br>If this statement evaluates as TRUE on a Save event in <span class='text-lg badge badge-lg badge-success'>THIS</span> project, the defined claim below will be executed.  Typically, you will use the <b>Inbound Mapping Rules</b> below to change the value of one of the fields referenced in this logic to prevent a record from re-claiming over and over on each save event.  The logic is evaluated in the context of the current save event for event ids and instance ids.<br><i>e.g.</i> <code>[calc_do_lookup] = '1' AND [inbound_mapped_field] = ''</code>",
                     "required": true,
+                    "type": "textarea"
+                },
+                {
+                    "key": "external-project",
+                    "name": "<b>External Database Project</b><br>This is the project that has records 'to be claimed'.  It must be classical.  Check out the README for example project definitions.",
+                    "required": true,
+                    "type": "project-id"
+                },
+                {
+                    "key": "external-logic",
+                    "name": "<b>External Lookup Logic</b><br>To find an available record from the <span class='text-lg badge badge-lg badge-danger'>EXTERNAL</span> database, each external record will be evaluated using logic defined here until true.  The syntax is a little different to accommodate a mix of THIS and the EXTERNAL project's data.  For fields in the <span class='text-lg badge badge-lg badge-danger'>EXTERNAL</span> project, use { } brackets instead of [ ] brackets.  You can refer to data from the current record in <span class='text-lg badge badge-lg badge-success'>THIS</span> project using normal branching and also use smart variables.<hr>Examples:<br><ul><li><code>{claimed_date}=''</code> will find the first external record without a claimed_date value.</li><li><code>{claimed_date}='' and {dag} = '[record-dag-name]'</code> will find an <span class='text-lg badge badge-lg badge-danger'>EXTERNAL</span> record where the column 'dag' has a value of the current record's unique group name</li></ul>Check out the full documentation for more details and pay attention to quotes.",
+                    "required": true,
+                    "type": "textarea"
+                },
+                {
+                    "key": "external-used-field",
+                    "name": "<b>External Claimed By Field</b><br>(highly recommended) Field in the <span class='text-lg badge badge-lg badge-danger'>EXTERNAL</span> project where this module will store the <span class='text-lg badge badge-lg badge-success'>THIS</span> project's record id when a claim occurs.  Often this is the field referenced above in the <b>External Lookup Logic</b><br><i>e.g.</i> <code>claimed_by</code> -- just the field name, no brackets or braces.",
+                    "required": false,
                     "type": "text"
                 },
                 {
-                    "key": "this-field",
-                    "name": "<b>Field name in this project</b>",
-                    "required": true,
-                    "type": "field-list"
+                    "key": "external-date-field",
+                    "name": "<b>External Date Claimed Field</b><br><i>(optional)</i> Store timestamp of when the <span class='text-lg badge badge-lg badge-danger'>EXTERNAL</span> record was claimed<br><i>e.g.</i> <code>claimed_date</code> -- must be text or datetime field type",
+                    "required": false,
+                    "type": "text"
                 },
                 {
-                    "key": "this-event",
-                    "name": "<b>Event in this project</b>",
-                    "required": true,
-                    "type": "event-list"
+                    "key": "inbound-mapping",
+                    "name": "<b>Inbound Mapping Rule</b>",
+                    "required": false,
+                    "type": "sub_settings",
+                    "repeatable": true,
+                    "sub_settings": [
+                        {
+                            "key": "inbound-desc",
+                            "name": "Copy values from the <span class='text-lg badge badge-lg badge-danger'>EXTERNAL</span> project to fields in <span class='text-lg badge badge-lg badge-success'>THIS</span> project when a claim event occurs.  Make sure the field types are compatible.  Note it IS possible to copy FILES as well as text values.",
+                            "required": true,
+                            "type": "descriptive"
+                        },
+                        {
+                            "key": "external-field-inbound",
+                            "name": "<b>Field name in <span class='text-lg badge badge-lg badge-success'>EXTERNAL</span> project</b>",
+                            "required": true,
+                            "type": "text"
+                        },
+                        {
+                            "key": "this-field-inbound",
+                            "name": "<b>Field name in <span class='text-lg badge badge-lg badge-success'>THIS</span> project</b>",
+                            "required": true,
+                            "type": "field-list"
+                        },
+                        {
+                            "key": "this-event-inbound",
+                            "name": "<b>Event in <span class='text-lg badge badge-lg badge-success'>THIS</span> project</b><br>Leave blank for current event",
+                            "required": false,
+                            "type": "event-list"
+                        },
+                        {
+                            "key": "this-instance-inbound",
+                            "name": "<b>Instance in <span class='text-lg badge badge-lg badge-success'>THIS</span> project</b><br>Leave blank for current instance",
+                            "required": false,
+                            "type": "text"
+                        }
+                    ]
+                },
+                {
+                    "key": "outbound-mapping",
+                    "name": "<b>Outbound Mapping Rule</b>",
+                    "required": false,
+                    "type": "sub_settings",
+                    "repeatable": true,
+                    "sub_settings": [
+                        {
+                            "key": "outbound-desc",
+                            "name": "Map values from <span class='text-lg badge badge-lg badge-success'>THIS</span> project to fields in the <span class='text-lg badge badge-lg badge-danger'>EXTERNAL</span> database when a claim event occurs",
+                            "required": true,
+                            "type": "descriptive"
+                        },
+                        {
+                            "key": "this-field-outbound",
+                            "name": "<b>Field name in <span class='text-lg badge badge-lg badge-success'>THIS</span> project</b>",
+                            "required": true,
+                            "type": "field-list"
+                        },
+                        {
+                            "key": "this-event-outbound",
+                            "name": "<b>Event in <span class='text-lg badge badge-lg badge-success'>THIS</span> project</b><br>Leave blank for current event",
+                            "required": false,
+                            "type": "event-list"
+                        },
+                        {
+                            "key": "this-instance-outbound",
+                            "name": "<b>Instance in <span class='text-lg badge badge-lg badge-success'>THIS</span> project</b><br>Leave blank for current instance",
+                            "required": false,
+                            "type": "text"
+                        },
+                        {
+                            "key": "external-field-outbound",
+                            "name": "<b>Field name in <span class='text-lg badge badge-lg badge-danger'>EXTERNAL</span> database<br>Value from this project will be saved in external project.</b>",
+                            "required": true,
+                            "type": "text"
+                        }
+                    ]
+                },
+                {
+                    "key": "disable-instance",
+                    "name": "<b>Disable This Instance</b><br>So you can debug without having to delete all your configuration, you can simply check this box to prevent this instance of Claim From Another Project from evaluating on save.",
+                    "required": false,
+                    "type": "checkbox"
                 }
             ]
         },
         {
-            "key": "enable-project-debug-logging",
-            "name": "<b>Enable Debug Logging</b></h6><i> (Requires emLogger)</i><br>If you have questions enabling debugging, please contact the REDCap team for help.",
+            "key": "error-email-address",
+            "name": "<b>Error Email</b><br>(optional) In the event there is a configuration error or processing error, enter an email address to be notified.",
             "required": false,
+            "type": "text"
+        },
+        {
+            "key": "enable-project-debug-logging",
+            "name": "<b>Enable Debug Logging</b></h6><i> (Requires emLogger)</i>",
+            "required": false,
+            "super-users-only": true,
             "type": "checkbox"
         }
 	],
