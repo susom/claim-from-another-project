@@ -203,6 +203,12 @@ class ClaimFromAnotherProject extends \ExternalModules\AbstractExternalModule {
             $localInstanceId = $map['this-instance-outbound'];
             $remoteField     = $map['external-field-outbound'];
 
+            if(empty($localField) || empty($remoteField)) {
+                // Missing required input
+                $this->emDebug("[$i] Missing required outbound mapping parameters");
+                continue;
+            }
+
             $localForm = $this->Proj->metadata[$localField]['form_name'];
 
             // Check EVENT
@@ -234,6 +240,12 @@ class ClaimFromAnotherProject extends \ExternalModules\AbstractExternalModule {
             $localField      = $map['this-field-inbound'];
             $localEventId    = $map['this-event-inbound'];
             $localInstanceId = $map['this-instance-inbound'];
+
+            if(empty($localField) || empty($extField)) {
+                // Missing required input
+                $this->emDebug("[$i] Missing required inbound mapping parameters");
+                continue;
+            }
 
             // Does extField exist?
             if (!isset($extProj->metadata[$extField])) {

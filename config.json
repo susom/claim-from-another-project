@@ -94,7 +94,7 @@
                         },
                         {
                             "key": "external-field-inbound",
-                            "name": "<b>Field name in <span class='text-lg badge badge-lg badge-success'>EXTERNAL</span> project</b>",
+                            "name": "<b>Field name in <span class='text-lg badge badge-lg badge-danger'>EXTERNAL</span> project</b>",
                             "required": true,
                             "type": "text"
                         },
@@ -128,13 +128,13 @@
                         {
                             "key": "outbound-desc",
                             "name": "Map values from <span class='text-lg badge badge-lg badge-success'>THIS</span> project to fields in the <span class='text-lg badge badge-lg badge-danger'>EXTERNAL</span> database when a claim event occurs",
-                            "required": true,
+                            "required": false,
                             "type": "descriptive"
                         },
                         {
                             "key": "this-field-outbound",
                             "name": "<b>Field name in <span class='text-lg badge badge-lg badge-success'>THIS</span> project</b>",
-                            "required": true,
+                            "required": false,
                             "type": "field-list"
                         },
                         {
