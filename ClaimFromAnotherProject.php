@@ -294,7 +294,6 @@ class ClaimFromAnotherProject extends \ExternalModules\AbstractExternalModule {
             }
         }
 
-
         // Update External Project
         $q = REDCap::saveData($extProject, 'json', json_encode(array($extRecord)));
         if (!empty($q['errors'])) {
@@ -302,8 +301,7 @@ class ClaimFromAnotherProject extends \ExternalModules\AbstractExternalModule {
                 json_encode($q['errors']) . "\nwith:\n" .  json_encode($extRecord));
         }
 
-        // Save to current project
-        // Had to use record method to include file id...
+        // Save to current project -- had to use record method to include file id...
         $params = [
             0 => $this->project_id,
             1 => 'array',
@@ -322,25 +320,6 @@ class ClaimFromAnotherProject extends \ExternalModules\AbstractExternalModule {
             14 => false // THIS IS WHAT WE NEED TO OVERRIDE FOR FILES TO BE 'SAVABLE'
         ];
         $q = call_user_func_array(array("\Records", "saveData"), $params);
-
-        // $project_id = $args[0];
-        // $dataFormat = (isset($args[1])) ? strToLower($args[1]) : 'array';
-        // $data = (isset($args[2])) ? $args[2] : "";
-        // $overwriteBehavior = (isset($args[3])) ? strToLower($args[3]) : 'normal';
-        // $dateFormat = (isset($args[4])) ? strToUpper($args[4]) : 'YMD';
-        // $type = (isset($args[5])) ? strToLower($args[5]) : 'flat';
-        // $group_id = (isset($args[6])) ? $args[6] : null;
-        // $dataLogging = (isset($args[7])) ? $args[7] : true;
-        // $performAutoCalc = (isset($args[8])) ? $args[8] : true;
-        // $commitData = (isset($args[9])) ? $args[9] : true;
-        // $logAsAutoCalculations = (isset($args[10])) ? $args[10] : false;
-        // $skipCalcFields = (isset($args[11])) ? $args[11] : true;
-        // $changeReasons = (isset($args[12])) ? $args[12] : array();
-        // $returnDataComparisonArray = (isset($args[13])) ? $args[13] : false;
-        // $skipFileUploadFields = (isset($args[14])) ? $args[14] : true;
-        // $removeLockedFields = (isset($args[15])) ? $args[15] : false;
-        // $addingAutoNumberedRecords = (isset($args[16])) ? $args[16] : false;
-        // $bypassPromisCheck = (isset($args[17])) ? $args[17] : false;
 
         if (!empty($q['errors'])) {
             throw New InvalidInstanceException("Errors during local save of record $this->record : " . json_encode($q['errors']));
@@ -368,17 +347,18 @@ class ClaimFromAnotherProject extends \ExternalModules\AbstractExternalModule {
      */
 	private function parseExternalLogic($logic, $record_data) {
         $this->emDebug("Starting with logic: $logic");
+
         // Pipe any special piping tags in THIS project
         $user = defined("USERID") && !empty(USERID) ? USERID : NULL;
 
         if ($this->Proj->longitudinal) {
             $logic = LogicTester::logicPrependEventName($logic, $this->Proj->getUniqueEventNames($this->event_id), $this->Proj);
-            $this->emDebug("Prepending event names: $logic");
+            // $this->emDebug("Prepending event names: $logic");
         }
 
         $logic = Piping::replaceVariablesInLabel($logic, $this->record, $this->event_id, $this->repeat_instance,
             $record_data, false, $this->project_id, false);
-        $this->emDebug("Post-replaceVariablesInLabel logic: $logic");
+        // $this->emDebug("Post-replaceVariablesInLabel logic: $logic");
 
         // $logic = Piping::pipeSpecialTags($logic, $this->project_id, $this->record, $this->event_id, $this->repeat_instance, $user, true);
         // $this->emDebug("Post-piping logic: $logic");
@@ -401,14 +381,6 @@ class ClaimFromAnotherProject extends \ExternalModules\AbstractExternalModule {
             REDCap::email($email,$project_contact_email,$subject,$msg);
         }
     }
-
-
-	public function logExit($msg) {
-        $this->emDebug($msg);
-        REDCap::logEvent("Error",$msg);
-        return false;
-    }
-
 
 	public function redcap_save_record( $project_id, $record, $instrument, $event_id, $group_id = NULL, $survey_hash = NULL, $response_id = NULL, $repeat_instance = 1) {
 

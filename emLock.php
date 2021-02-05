@@ -78,6 +78,10 @@ class emLock
         return true;
     }
 
+
+
+
+
     /**
      * Obtain a lock
      * @param $scope
@@ -95,6 +99,7 @@ class emLock
         self::$ts_start = microtime(true);
 
         $scope = FILTER_VAR($scope, FILTER_SANITIZE_STRING);
+
         // Verify there is a row to lock in the external_modules_log table
         $sql = "select * from " . self::tableName . " where scope = '$scope'";
         $q = db_query($sql);
