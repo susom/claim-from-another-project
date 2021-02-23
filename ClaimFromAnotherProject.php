@@ -4,6 +4,7 @@ namespace Stanford\ClaimFromAnotherProject;
 use REDCap;
 use Piping;
 use Project;
+use LogicTester;
 
 require_once "emLoggerTrait.php";
 require_once "InvalidInstanceException.php";
