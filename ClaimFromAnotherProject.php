@@ -146,6 +146,11 @@ class ClaimFromAnotherProject extends \ExternalModules\AbstractExternalModule {
             $this->emDebug("[$i] Claim logic true: $claimLogic");
         }
 
+        // Obtain lock for instance - in this case, the external-project
+        $scope = implode("_", array( $this->getModuleName(), $instance['external-project'] ));
+        $lock = emLock::lock($scope);
+        $this->emDebug("Obtained Lock: $lock on $scope");
+
         // Load the current record
         $params = [
             'return_format' => 'array',
@@ -409,11 +414,6 @@ class ClaimFromAnotherProject extends \ExternalModules\AbstractExternalModule {
 	        // if ($this->validateClaimInstance($instance)) continue;
 
             try {
-                // Obtain lock for instance - in this case, the external-project
-                $scope = implode("_", array( $this->getModuleName(), $instance['external-project'] ));
-                $lock = emLock::lock($scope);
-                $this->emDebug("Obtained Lock: $lock on $scope");
-
                 // Run the claim instance
                 $this->processInstance($instance);
             } catch (InvalidInstanceException $e) {

@@ -134,12 +134,18 @@ class emLock
      * @param boolean $success
      */
     public static function release($success = true) {
+
+        if (empty(self::$lockId)) {
+            // No need to unlock - already done
+            return false;
+        }
+
         $duration_ms = round((microtime(true) - self::$ts_start) * 1000, 0);
 
         $sql = "insert into " . self::logTableName . " (lock_id, duration_ms) " .
             "VALUES (" . self::$lockId . ", " . intval($duration_ms) . ")";
-        \Plugin::log($sql);
 
+        \Plugin::log($sql);
         db_query($sql);
 
         if ($success) {
