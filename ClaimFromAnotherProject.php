@@ -169,7 +169,7 @@ class ClaimFromAnotherProject extends \ExternalModules\AbstractExternalModule {
 
         if (empty($q)) {
             $msg = "No records are available in project $extProject meeting required logic: $logic";
-            $this->emDebug($msg);
+            $this->emDebug($msg, $params, $q);
             REDCap::logEvent($this->getModuleName() . " unable to find external record in $extProject", $msg,"",$this->record, $this->event_id);
             $this->notifyAdmin($msg);
             return false;

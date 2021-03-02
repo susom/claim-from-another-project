@@ -152,7 +152,7 @@
                         {
                             "key": "external-field-outbound",
                             "name": "<b>Field name in <span class='text-lg badge badge-lg badge-danger'>EXTERNAL</span> database<br>Value from this project will be saved in external project.</b>",
-                            "required": true,
+                            "required": false,
                             "type": "text"
                         }
                     ]
