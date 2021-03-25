@@ -135,6 +135,11 @@ class ClaimFromAnotherProject extends \ExternalModules\AbstractExternalModule {
         $extDateField = $instance['external-date-field'];
         $i            = $instance['i'];
 
+        if ($instance['disable-instance']) {
+            $this->emDebug("Instance $i inactive - skipping");
+            return false;
+        }
+
         // See if the logic is true to claim
         if (empty($claimLogic)) throw New InvalidInstanceException("[$i] Missing required claim-logic");
         $eval = REDCap::evaluateLogic($claimLogic,$this->project_id,$this->record,$this->event_id,$this->repeat_instance);
