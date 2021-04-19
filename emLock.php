@@ -22,13 +22,13 @@ class emLock
         if (self::tablesExist()) {
             return true;
         } else {
-            \Plugin::log("tables do not exist");
+            // \Plugin::log("tables do not exist");
             self::createTables();
             if (self::tablesExist()) {
-                \Plugin::log("tables created");
+                // \Plugin::log("tables created");
                 return true;
             } else {
-                \Plugin::log("tables unable to be created");
+                // \Plugin::log("tables unable to be created");
                 return false;
             }
         }
@@ -92,7 +92,7 @@ class emLock
         if (!self::validate()) throw new Exception("Unable to validate table schema");
 
         if (empty($scope)) {
-            \Plugin::log("Invalid SCOPE!");
+            // \Plugin::log("Invalid SCOPE!");
             throw New Exception("Invalid SCOPE passed in");
         }
 
@@ -123,7 +123,7 @@ class emLock
         if (db_errno() == 0) {
             return self::$lockId;
         } else {
-            \Plugin::log("db_errorno", db_errno(), db_error());
+            // \Plugin::log("db_errorno", db_errno(), db_error());
             throw new Exception(db_error());
         }
     }
@@ -145,7 +145,7 @@ class emLock
         $sql = "insert into " . self::logTableName . " (lock_id, duration_ms) " .
             "VALUES (" . self::$lockId . ", " . intval($duration_ms) . ")";
 
-        \Plugin::log($sql);
+        // \Plugin::log($sql);
         db_query($sql);
 
         if ($success) {
