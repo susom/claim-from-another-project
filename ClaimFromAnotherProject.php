@@ -244,6 +244,9 @@ class ClaimFromAnotherProject extends \ExternalModules\AbstractExternalModule {
 
         }
 
+        //BUGFIX: if randomization exists then saving hte whole record breaks. Only save the inbound mapping
+        $localSaveRecord = [];
+
         // Inbound Mapping (SUPPORTS FILES)
         foreach ($instance['inbound-mapping'] as $o => $map) {
             $desc            = $map['inbound-desc'];
@@ -298,10 +301,12 @@ class ClaimFromAnotherProject extends \ExternalModules\AbstractExternalModule {
                 $newEdocId = copyFile($edocId, $this->project_id);
 
                 $localRecord[$this->record][$localEventId][$localField] = $newEdocId;
+                $localSaveRecord[$this->record][$localEventId][$localField] = $newEdocId;
                 $this->emDebug("$localField is a file - copied $edocId to $newEdocId");
             } else {
                 // Just copy the other data as-is
                 $localRecord[$this->record][$localEventId][$localField] = $extRecord[$extField];
+                $localSaveRecord[$this->record][$localEventId][$localField] = $extRecord[$extField];
             }
         }
 
@@ -316,7 +321,7 @@ class ClaimFromAnotherProject extends \ExternalModules\AbstractExternalModule {
         $params = [
             0 => $this->project_id,
             1 => 'array',
-            2 => $localRecord,
+            2 => $localSaveRecord,
             3 => 'normal',
             4 => 'YMD',
             5 => 'flat',
